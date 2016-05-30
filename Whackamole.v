@@ -4,13 +4,23 @@ module Whackamole(
 	input clk,
 	input rst,
 	input  [7:0] DPSwitch,
-   output [7:0] LED
+   output [7:0] LED,
+	output reg [2:0] an,
+	output reg [7:0] seg
     );
 
-reg game_clk;
+//////////////////////////////////////////////////////////////////////////////////
+//                               Clocks  			                                //
+//////////////////////////////////////////////////////////////////////////////////
+reg game_clk; //Make one
+reg fiftyHz; //Make one
 always @ (*)  //Change this to the actual game clock later
 begin game_clk <= clk; end 
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               Switches			                                //
+//////////////////////////////////////////////////////////////////////////////////
 reg [7:0] toggle;
 reg [7:0] prevSwitch;
 
@@ -31,9 +41,17 @@ toggle[1] <= (prevSwitch[1] == ~DPSwitch[1]) ? 1'b1 : 1'b0;
 toggle[0] <= (prevSwitch[0] == ~DPSwitch[0]) ? 1'b1 : 1'b0;
 end
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               RNG    			                                //
+//////////////////////////////////////////////////////////////////////////////////
 lfsr rngLED(.enable(1'b1), .clk(game_clk), .reset(rst), .out(LED[7:0]));
 
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               Score				                                //
+//////////////////////////////////////////////////////////////////////////////////
 
 wire [7:0] score;
 wire [3:0] score_increment =  toggle[7] & LED[7] + //if switch and toggled and LED is on 1 pt for each such case
@@ -47,5 +65,64 @@ wire [3:0] score_increment =  toggle[7] & LED[7] + //if switch and toggled and L
 
 scoreCounter scoreCount(.clock(game_clk), .rst(rst), .amt(score_increment), .count(score));
 
+wire [3:0] Hundreds;
+wire [3:0] Tens;
+wire [3:0] Ones;
+BCDconverter BCD( .binary(score), . Hundreds(Hundreds), .Tens(Tens), .Ones(Ones));
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               Display 7-Segment                              //
+//////////////////////////////////////////////////////////////////////////////////
+
+// Assign the digit_value register with the correct data
+reg [2:0] digit_value [0:2];
+
+always @ (posedge clk)
+begin
+	if(rst)
+	begin 
+		digit_value[0] <= 4'd0;
+		digit_value[1] <= 4'd0;
+		digit_value[2] <= 4'd0;
+
+	end
+	else
+	begin
+		digit_value[0] <= Ones;
+		digit_value[1] <= Tens;
+		digit_value[2] <= Hundreds;
+ 
+	end
+end
+
+// Set the digit to display
+reg [1:0] digPos;	
+reg decp;
+always @ (posedge fiftyHz)
+begin
+	if ( rst )
+	begin
+		digPos <= 0;
+		decp <= 0;
+	end
+	else
+	begin
+		decp <= 0;
+		digPos <= digPos + 2'b01;
+	end
+end
+
+// Set the seven segment display
+wire [2:0]an_val;
+wire [7:0]seg_val;
+display_digit dispDig(.select(digPos), .digit_val(digit_value[digPos]), .dp(1'b0), .src_clk(fiftyHz), .anode(an_val), .segment(seg_val));
+always @ (posedge fiftyHz)
+begin
+an <= an_val;
+seg <= seg_val;
+end
 
 endmodule
