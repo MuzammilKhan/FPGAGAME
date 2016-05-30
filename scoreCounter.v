@@ -7,16 +7,17 @@ module scoreCounter(
 		output reg [7:0] count
     );
 
-always @ (posedge clock or posedge rst)
+always @ (posedge clock)
 begin
-	if(~rst)
+count <= ~rst ? count + amt : count <= 8'b00000000;
+	/*if(~rst)
 	begin
 		count <= count + amt;
 	end
 	else
 	begin
 		count <= 8'b00000000;
-	end
+	end*/
 
 end
 endmodule

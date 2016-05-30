@@ -1,47 +1,31 @@
-`timescale 1ns / 1ps
+module lfsr    (
 
-module RNG(
-    input clk,
-    input rst,
-    output [7:0] rnd
-    );
- 
-wire feedback = random[7] ^ random[5] ^ random[4] ^ random[3];
- 
-reg [7:0] random, random_next, random_done;
-reg [3:0] count, count_next; //to keep track of the shifts
- 
-always @ (posedge clk or posedge rst)
-begin
- if (rst)
- begin
-  random <= 8'hFF; //An LFSR cannot have an all 0 state, thus reset to FF
-  count <= 0;
- end
- else
- begin
-  random <= random_next;
-  count <= count_next;
- end
-end
- 
-always @ (*)
-begin
- random_next = random; //default state stays the same
- count_next = count;
-   
-  random_next = {random[6:0], feedback}; //shift left the xor'd every posedge clock
-  count_next = count + 1;
- 
- if (count == 8)
- begin
-  //count = 4'b0;
-  random_done = random; //assign the random number to output after 8 shifts
- end
-  
-end
- 
- 
-assign rnd = random_done;
- 
+enable          ,  // Enable  for counter
+clk             ,  // clock input
+reset,              // reset input
+out               // Output of the counter
+);
+
+//----------Output Ports--------------
+output [7:0] out;
+//------------Input Ports--------------
+
+input enable, clk, reset;
+//------------Internal Variables--------
+reg [7:0] out;
+wire        linear_feedback;
+
+//-------------Code Starts Here-------
+assign linear_feedback = !(out[7] ^ out[3]);
+
+always @(posedge clk)
+if (reset) begin // active high reset
+  out <= 8'b0 ;
+end else if (enable) begin
+  out <= {out[6],out[5],
+          out[4],out[3],
+          out[2],out[1],
+          out[0], linear_feedback};
+end 
+
 endmodule

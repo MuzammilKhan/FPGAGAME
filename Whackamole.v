@@ -8,6 +8,8 @@ module Whackamole(
     );
 
 reg game_clk;
+always @ (*)  //Change this to the actual game clock later
+begin game_clk <= clk; end 
 
 reg [7:0] toggle;
 reg [7:0] prevSwitch;
@@ -29,11 +31,11 @@ toggle[1] <= (prevSwitch[1] == ~DPSwitch[1]) ? 1'b1 : 1'b0;
 toggle[0] <= (prevSwitch[0] == ~DPSwitch[0]) ? 1'b1 : 1'b0;
 end
 
+lfsr rngLED(.enable(1'b1), .clk(game_clk), .reset(rst), .out(LED[7:0]));
 
-RNG rngLEDS(.clk(game_clk), .rst(rst), .rnd(LED));
 
 
-reg [7:0] score;
+wire [7:0] score;
 wire [3:0] score_increment =  toggle[7] & LED[7] + //if switch and toggled and LED is on 1 pt for each such case
 										toggle[6] & LED[6] +
 										toggle[5] & LED[5] +
@@ -44,5 +46,6 @@ wire [3:0] score_increment =  toggle[7] & LED[7] + //if switch and toggled and L
 										toggle[0] & LED[0];
 
 scoreCounter scoreCount(.clock(game_clk), .rst(rst), .amt(score_increment), .count(score));
+
 
 endmodule
