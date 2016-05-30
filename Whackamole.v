@@ -5,7 +5,7 @@ module Whackamole(
 	input rst,
 	input  [7:0] DPSwitch,
    output [7:0] LED,
-	output reg [2:0] an,
+	output reg [3:0] an,
 	output reg [7:0] seg
     );
 
@@ -13,7 +13,9 @@ module Whackamole(
 //                               Clocks  			                                //
 //////////////////////////////////////////////////////////////////////////////////
 reg game_clk; //Make one
-reg fiftyHz; //Make one
+wire twohundredHz; //Make one
+
+clk_gen twohundredHzgen(.clk(clk), .counter(28'd250000), .clk_out(twohundredHz));
 always @ (*)  //Change this to the actual game clock later
 begin game_clk <= clk; end 
 
@@ -78,7 +80,7 @@ BCDconverter BCD( .binary(score), . Hundreds(Hundreds), .Tens(Tens), .Ones(Ones)
 //////////////////////////////////////////////////////////////////////////////////
 
 // Assign the digit_value register with the correct data
-reg [2:0] digit_value [0:2];
+reg [3:0] digit_value [0:3];
 
 always @ (posedge clk)
 begin
@@ -87,42 +89,41 @@ begin
 		digit_value[0] <= 4'd0;
 		digit_value[1] <= 4'd0;
 		digit_value[2] <= 4'd0;
-
+		digit_value[3] <= 4'd0;
 	end
 	else
 	begin
 		digit_value[0] <= Ones;
 		digit_value[1] <= Tens;
 		digit_value[2] <= Hundreds;
+		digit_value[3] <= 4'd0;
  
 	end
 end
 
 // Set the digit to display
 reg [1:0] digPos;	
-reg decp;
-always @ (posedge fiftyHz)
+always @ (posedge twohundredHz)
 begin
 	if ( rst )
 	begin
 		digPos <= 0;
-		decp <= 0;
 	end
 	else
 	begin
-		decp <= 0;
 		digPos <= digPos + 2'b01;
 	end
 end
 
 // Set the seven segment display
-wire [2:0]an_val;
+wire [3:0]an_val;
 wire [7:0]seg_val;
-display_digit dispDig(.select(digPos), .digit_val(digit_value[digPos]), .dp(1'b0), .src_clk(fiftyHz), .anode(an_val), .segment(seg_val));
-always @ (posedge fiftyHz)
+display_digit dispDig(.select(digPos), .digit_val(digit_value[digPos]), .dp(1'b0), .src_clk(twohundredHz), .anode(an_val), .segment(seg_val));
+always @ (posedge twohundredHz)
 begin
-an <= an_val;
-seg <= seg_val;
+an[3] <= 1'b0;
+an [2:0] <= an_val;
+seg [7:0]<= seg_val;
 end
 
 endmodule

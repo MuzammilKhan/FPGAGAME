@@ -21,7 +21,7 @@
 module clk_gen(
     input clk,
     input [27:0] counter,
-    output clk_out
+    output reg clk_out
     );
 
 reg [27:0] count_to;
