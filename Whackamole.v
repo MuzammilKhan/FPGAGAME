@@ -2,8 +2,8 @@
 
 module Whackamole(
 	input clk,
-	input rst,
-	input  [7:0] DPSwitch,
+	input rst_button,
+	input  [7:0] sw,
    output [7:0] LED,
 	output reg [3:0] an,
 	output reg [7:0] seg
@@ -12,12 +12,20 @@ module Whackamole(
 //////////////////////////////////////////////////////////////////////////////////
 //                               Clocks  			                                //
 //////////////////////////////////////////////////////////////////////////////////
-reg game_clk; //Make one
-wire twohundredHz; //Make one
+wire game_clk; //Modify
+clk_gen gameclkgen(.clk(clk), .counter(28'd500000), .clk_out(game_clk));
 
+wire twohundredHz; 
 clk_gen twohundredHzgen(.clk(clk), .counter(28'd250000), .clk_out(twohundredHz));
-always @ (*)  //Change this to the actual game clock later
-begin game_clk <= clk; end 
+
+wire tenMHz;
+clk_gen tenMhzgen(.clk(clk), .counter(28'd5), .clk_out(tenMhz));
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               Debounce RST                                   //
+//////////////////////////////////////////////////////////////////////////////////
+wire rst;
+PushButton_Debouncer rstDebounce(.clk(tenMhz), .PB(rst_button), .PB_state(rst) /*,.PB_down(), .PB_up()*/);
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -28,19 +36,19 @@ reg [7:0] prevSwitch;
 
 always @ (posedge game_clk)
 begin
-prevSwitch [7:0] <= DPSwitch [7:0];
+prevSwitch [7:0] <= sw [7:0];
 end
 
 always @ (*)
 begin
-toggle[7] <= (prevSwitch[7] == ~DPSwitch[7]) ? 1'b1 : 1'b0;
-toggle[6] <= (prevSwitch[6] == ~DPSwitch[6]) ? 1'b1 : 1'b0;
-toggle[5] <= (prevSwitch[5] == ~DPSwitch[5]) ? 1'b1 : 1'b0;
-toggle[4] <= (prevSwitch[4] == ~DPSwitch[4]) ? 1'b1 : 1'b0;
-toggle[3] <= (prevSwitch[3] == ~DPSwitch[3]) ? 1'b1 : 1'b0;
-toggle[2] <= (prevSwitch[2] == ~DPSwitch[2]) ? 1'b1 : 1'b0;
-toggle[1] <= (prevSwitch[1] == ~DPSwitch[1]) ? 1'b1 : 1'b0;
-toggle[0] <= (prevSwitch[0] == ~DPSwitch[0]) ? 1'b1 : 1'b0;
+toggle[7] <= (prevSwitch[7] == ~sw[7]) ? 1'b1 : 1'b0;
+toggle[6] <= (prevSwitch[6] == ~sw[6]) ? 1'b1 : 1'b0;
+toggle[5] <= (prevSwitch[5] == ~sw[5]) ? 1'b1 : 1'b0;
+toggle[4] <= (prevSwitch[4] == ~sw[4]) ? 1'b1 : 1'b0;
+toggle[3] <= (prevSwitch[3] == ~sw[3]) ? 1'b1 : 1'b0;
+toggle[2] <= (prevSwitch[2] == ~sw[2]) ? 1'b1 : 1'b0;
+toggle[1] <= (prevSwitch[1] == ~sw[1]) ? 1'b1 : 1'b0;
+toggle[0] <= (prevSwitch[0] == ~sw[0]) ? 1'b1 : 1'b0;
 end
 
 

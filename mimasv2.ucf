@@ -94,7 +94,7 @@ CONFIG VCCAUX = "3.3" ;
 ###################################################################################################################################################
 #                                              Push Buttons Switches                                                                              #
 ################################################################################################################################################### 
-    #NET "btnBL"                  LOC = M18     | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST | PULLUP; #SW1
+    NET "rst_button"                  LOC = M18     | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST | PULLUP; #SW1
     #NET "btnBR"                  LOC = L18     | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST | PULLUP; #SW2
     #NET "btnBM"                  LOC = M16     | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST | PULLUP; #SW3
     #NET "btnTM"                  LOC = L17     | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = FAST | PULLUP; #SW4
