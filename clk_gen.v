@@ -26,17 +26,18 @@ module clk_gen(
 
 reg [27:0] count_to;
 
-initial
-begin
-	clk_out <= 0;
-	count_to <= 0;
-end
+//initial
+//begin
+	//clk_out <= 0;
+	//count_to <= 0;
+//end
 
 always @ (posedge clk)
 begin
 	if (count_to == counter)
 	begin
 		clk_out <= ~clk_out;
+		count_to <= 28'b0;
 	end
 	else
 	begin

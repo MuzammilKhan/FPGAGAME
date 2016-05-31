@@ -5,7 +5,7 @@ module display_digit(input [1:0] select,
     //input dp,
 	 input src_clk,
 	 //input src_rst,
-	 output reg [2:0]anode,
+	 output reg [3:0]anode,
 	 output reg [7:0]segment
     );
 	
@@ -13,11 +13,10 @@ module display_digit(input [1:0] select,
 	begin
 		// anode
 		case(select)
-			0:	anode <= 3'b110;
-			1: anode <= 3'b101;
-			default: anode <= 3'b011;
-//			2: anode <= 4'b1011;
-//			default: anode <= 4'b0111;
+			0:	anode <= 4'b1110;
+			1: anode <= 4'b1101;
+			2: anode <= 4'b1011;
+			default: anode <= 4'b0111;
 		endcase
 				
 		//cathodes

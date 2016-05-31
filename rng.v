@@ -1,31 +1,40 @@
-module lfsr    (
+`timescale 1ns / 1ps
 
-enable          ,  // Enable  for counter
-clk             ,  // clock input
-reset,              // reset input
-out               // Output of the counter
+
+module lfsr(
+enable,  // Enable for counter
+clock,   // clock input
+reset,   // reset input
+out      // Output of the counter
 );
 
-//----------Output Ports--------------
 output [7:0] out;
-//------------Input Ports--------------
-
-input enable, clk, reset;
-//------------Internal Variables--------
+input enable, clock, reset;
 reg [7:0] out;
-wire        linear_feedback;
+wire linear_feedback;
 
-//-------------Code Starts Here-------
+initial
+begin
+	out <= 8'b0;
+end
+
+// Assign Feedback
 assign linear_feedback = !(out[7] ^ out[3]);
 
-always @(posedge clk)
-if (reset) begin // active high reset
-  out <= 8'b0 ;
-end else if (enable) begin
-  out <= {out[6],out[5],
-          out[4],out[3],
-          out[2],out[1],
-          out[0], linear_feedback};
+// Compute RNG
+always @(posedge clock)
+begin
+	if (reset || !enable) 
+	begin // active high reset
+		out <= 8'b0 ;
+	end 
+	else
+	begin
+		out <= {out[6],out[5],
+				out[4],out[3],
+				out[2],out[1],
+				out[0], linear_feedback};
+	end
 end 
 
 endmodule
