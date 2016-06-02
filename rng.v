@@ -19,7 +19,7 @@ begin
 end
 
 // Assign Feedback
-assign linear_feedback = !(out[7] ^ out[3]);
+assign linear_feedback = !(out[7] ^ out[3] ^ out[2]);
 
 // Compute RNG
 always @(posedge clock)

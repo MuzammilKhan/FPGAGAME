@@ -90,8 +90,9 @@ end
 //////////////////////////////////////////////////////////////////////////////////
 //                               RNG    			                                //
 //////////////////////////////////////////////////////////////////////////////////
-//lfsr rngLED(.enable(1'b1), .clock(game_clk), .reset(rst), .out(LED[7:0]));
-assign LED[7:0] = 8'b10101010;
+lfsr rngLED(.enable(1'b1), .clock(game_clk), .reset(rst), .out(LED[7:0]));
+
+//assign LED[7:0] = 8'b10101010;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -264,14 +265,7 @@ end
 reg [1:0] digPos;	
 always @ (posedge twohundredHz)
 begin
-	if ( rst )
-	begin
-		digPos <= 0;
-	end
-	else
-	begin
 		digPos <= digPos + 2'b01;
-	end
 end
 
 // Set the seven segment display
