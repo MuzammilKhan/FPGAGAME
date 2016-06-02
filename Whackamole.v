@@ -6,7 +6,7 @@ module Whackamole(
 //	input inc_button,
 	input  [7:0] sw,
    output [7:0] LED,
-	output reg [3:0] an,
+	output reg [2:0] an,
 	output reg [7:0] seg
     );
 
@@ -50,8 +50,8 @@ reg level_four;
 reg level_five;
 reg level_six;
 reg level_seven;
-wire game_clk = level_one & oneHz | level_two & twoHz | level_three & threeHz | 
-					 level_four & fourHz |level_five & fiveHz	| level_six & sixHz | level_seven & sevenHz; //Modify
+wire game_clk = (level_one & oneHz) | (level_two & twoHz) | (level_three & threeHz) | 
+					 (level_four & fourHz) | (level_five & fiveHz)	| (level_six & sixHz) | (level_seven & sevenHz); //Modify
 //////////////////////////////////////////////////////////////////////////////////
 //                               Debounce RST                                   //
 //////////////////////////////////////////////////////////////////////////////////
@@ -66,10 +66,10 @@ PushButton_Debouncer incDebounce(.clk(tenMhz), .PB(inc_button), .PB_state(inc));
 //////////////////////////////////////////////////////////////////////////////////
 //                               Switches			                                //
 //////////////////////////////////////////////////////////////////////////////////
-/*reg [7:0] toggle;
+reg [7:0] toggle;
 reg [7:0] prevSwitch;
 
-always @ (posedge twohundredHz)
+always @ (posedge game_clk)
 begin
 prevSwitch [7:0] <= sw [7:0];
 end
@@ -85,7 +85,7 @@ toggle[2] <= (prevSwitch[2] == ~sw[2]) ? 1'b1 : 1'b0;
 toggle[1] <= (prevSwitch[1] == ~sw[1]) ? 1'b1 : 1'b0;
 toggle[0] <= (prevSwitch[0] == ~sw[0]) ? 1'b1 : 1'b0;
 end
-*/
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //                               RNG    			                                //
@@ -98,7 +98,7 @@ assign LED[7:0] = 8'b10101010;
 //                               Score				                                //
 //////////////////////////////////////////////////////////////////////////////////
 
-wire [7:0] score;
+
 /*wire [3:0] score_increment =  toggle[7] & LED[7] + //if switch and toggled and LED is on 1 pt for each such case
 										toggle[6] & LED[6] +
 										toggle[5] & LED[5] +
@@ -111,9 +111,9 @@ wire [7:0] score;
 */
 
 reg [3:0] score_increment;  
-always @ (posedge game_clk)
+always @ (posedge twohundredHz)
 begin
-			score_increment <=	(sw[7] & LED[7]) + //if switch and toggled and LED is on 1 pt for each such case
+		/*	score_increment <=	(sw[7] & LED[7]) + //if switch and toggled and LED is on 1 pt for each such case
 										(sw[6] & LED[6]) +
 										(sw[5] & LED[5]) +
 										(sw[4] & LED[4]) +
@@ -121,16 +121,28 @@ begin
 										(sw[2] & LED[2]) +
 										(sw[1] & LED[1]) +
 										(sw[0] & LED[0]);
+										
+										*/
+			  score_increment =  (toggle[7] & LED[7]) + //if switch and toggled and LED is on 1 pt for each such case
+										(toggle[6] & LED[6]) +
+										(toggle[5] & LED[5]) +
+										(toggle[4] & LED[4]) +
+										(toggle[3] & LED[3]) +
+										(toggle[2] & LED[2]) +
+										(toggle[1] & LED[1]) +
+										(toggle[0] & LED[0]);
+										
 end
 
-reg [7:0] prevScore;
-scoreCounter scoreCount(.clock(game_clk), .rst(rst), .prevCount(prevScore), .amt(score_increment), .count(score));
-always @ (posedge game_clk)
-begin
-prevScore <= score;
-end
+//reg [7:0] prevScore;
+wire [7:0] score;
+scoreCounter scoreCount(.clock(game_clk), .rst(rst), /*.prevCount(prevScore),*/ .amt(score_increment), .count(score));
+//always @ (posedge game_clk)
+//begin
+//prevScore <= score;
+//end
 
-always @ (posedge game_clk)
+always @ (posedge clk)
 begin
 if(score >= 70)
 begin
@@ -227,7 +239,7 @@ end
 
 // Assign the digit_value register with the correct data
 
-reg [3:0] digit_value [0:3];
+reg [3:0] digit_value [0:2];
 
 always @ (posedge clk)
 begin
@@ -236,14 +248,14 @@ begin
 		digit_value[0] <= 4'd0;
 		digit_value[1] <= 4'd0;
 		digit_value[2] <= 4'd0;
-		digit_value[3] <= 4'd0;
+		//digit_value[3] <= 4'd0;
 	end
 	else
 	begin
 		digit_value[0] <= Ones;
 		digit_value[1] <= Tens;
 		digit_value[2] <= Hundreds;
-		digit_value[3] <= 4'd0;
+		//digit_value[3] <= 4'd0;
  
 	end
 end
@@ -263,13 +275,13 @@ begin
 end
 
 // Set the seven segment display
-wire [3:0]an_val;
+wire [2:0]an_val;
 wire [7:0]seg_val;
 
-display_digit dispDig(.select(2'b0), .digit_val(score[7:4])/*, .dp(1'b0)*/, .src_clk(twohundredHz), .anode(an_val), .segment(seg_val));
+display_digit dispDig(.select(digPos), .digit_val(digit_value[digPos])/*, .dp(1'b0)*/, .src_clk(twohundredHz), .anode(an_val), .segment(seg_val));
 always @ (posedge twohundredHz)
 begin
-an [3:0] <= an_val;
+an [2:0] <= an_val;
 seg [7:0]<= seg_val;
 end
 
