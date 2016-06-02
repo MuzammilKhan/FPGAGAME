@@ -1,23 +1,5 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    04:57:06 05/30/2016 
-// Design Name: 
-// Module Name:    clk_gen 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
-//////////////////////////////////////////////////////////////////////////////////
+
 module clk_gen(
     input clk,
     input [27:0] counter,
@@ -26,11 +8,6 @@ module clk_gen(
 
 reg [27:0] count_to;
 
-//initial
-//begin
-	//clk_out <= 0;
-	//count_to <= 0;
-//end
 
 always @ (posedge clk)
 begin

@@ -2,14 +2,13 @@
 
 
 module lfsr(
-enable,  // Enable for counter
 clock,   // clock input
 reset,   // reset input
 out      // Output of the counter
 );
 
 output [7:0] out;
-input enable, clock, reset;
+input clock, reset;
 reg [7:0] out;
 wire linear_feedback;
 
@@ -18,14 +17,12 @@ begin
 	out <= 8'b0;
 end
 
-// Assign Feedback
-assign linear_feedback = !(out[7] ^ out[3] ^ out[2]);
+assign linear_feedback = ~(out[7] ^ out[3] ^ out[2]);
 
-// Compute RNG
 always @(posedge clock)
 begin
-	if (reset || !enable) 
-	begin // active high reset
+	if (reset) 
+	begin 
 		out <= 8'b0 ;
 	end 
 	else
