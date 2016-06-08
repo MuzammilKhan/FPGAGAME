@@ -56,7 +56,7 @@ wire game_clk = (level_one & oneHz) | (level_two & twoHz) | (level_three & three
 //                               Debounce RST                                   //
 //////////////////////////////////////////////////////////////////////////////////
 wire rst;
-PushButton_Debouncer rstDebounce(.clk(tenMhz), .PB(rst_button), .PB_state(rst) /*,.PB_down(), .PB_up()*/);
+PushButton_Debouncer rstDebounce(.clk(tenMhz), .PB(~rst_button), .PB_state(rst) /*,.PB_down(), .PB_up()*/);
 
 /*wire inc;
 PushButton_Debouncer incDebounce(.clk(tenMhz), .PB(inc_button), .PB_state(inc));
